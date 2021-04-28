@@ -1,0 +1,46 @@
+# =============== #
+# Unity generated #
+# =============== #
+[Tt]emp/
+[Oo]bj/
+[Bb]uild
+[Ll]ogs
+Library/
+sysinfo.txt
+*.stackdump
+ 
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/
+.vs/
+/*.userprefs
+/*.csproj
+/*.pidb
+/*.suo
+/*.sln*
+/*.user
+/*.unityproj
+/*.booproj
+
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+[Tt]humbs.db
+Assets/StreamingAssets/PDF/
+Assets/StreamingAssets/FBX/
+Assets/StreamingAssets/Codeblock/
+Assets/StreamingAssets/IconAtividade/
+Assets/StreamingAssets/RA/
+Assets/StreamingAssets/PDF.meta
+Assets/StreamingAssets/FBX.meta
+Assets/StreamingAssets/Codeblock.meta
+Assets/StreamingAssets/IconAtividade.meta
+Assets/StreamingAssets/RA.meta
+apk/
