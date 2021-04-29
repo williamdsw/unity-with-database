@@ -20,6 +20,7 @@ public class TableController : MonoBehaviour
     [SerializeField] private GameObject textColumnPrefab;
     [SerializeField] private GameObject textButtonColumnPrefab;
     [SerializeField] private TextMeshProUGUI messageText;
+    [SerializeField] private Button quitButton;
     [SerializeField] private Button registerButton;
 
     // || State
@@ -42,7 +43,11 @@ public class TableController : MonoBehaviour
         StartCoroutine(DrawTable());
     }
 
-    private void SetEventListeners() => registerButton.onClick.AddListener(() => GotoRegisterUpdate(0));
+    private void SetEventListeners()
+    {
+        quitButton.onClick.AddListener(() => Application.Quit());
+        registerButton.onClick.AddListener(() => GotoRegisterUpdate(0));
+    }
 
     private IEnumerator ClearTable()
     {

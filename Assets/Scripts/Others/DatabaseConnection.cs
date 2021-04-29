@@ -25,7 +25,7 @@ namespace Others
 
         private static string BuildConnectionString()
         {
-            return string.Format(" SERVER = {0}; DATABASE = {1}; PORT = {2}; USER ID = {3}; PASSWORD = {4};", SERVER, DATABASE, PORT, USER_ID, PASSWORD);
+            return string.Format(" SERVER = {0}; DATABASE = {1}; PORT = {2}; UID = {3}; PWD = {4};", SERVER, DATABASE, PORT, USER_ID, PASSWORD);
         }
     }
 }
