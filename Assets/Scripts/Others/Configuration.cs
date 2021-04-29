@@ -6,6 +6,12 @@ namespace Others
 {
     public class Configuration
     {
+        public class Messages
+        {
+            public static string ItemsFound => "{0} items found!";
+            public static string NothingWasFound => "Nothing was found!";
+        }
+
         public class Queries
         {
             public class Scoreboard

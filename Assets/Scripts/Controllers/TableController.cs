@@ -14,6 +14,7 @@ public class TableController : MonoBehaviour
     // || Inspector References
 
     [Header("Needed UI Elements")]
+    [SerializeField] private CanvasGroup tableCanvasGroup;
     [SerializeField] private Transform tableContent;
     [SerializeField] private GameObject rowPrefab;
     [SerializeField] private GameObject textColumnPrefab;
@@ -28,10 +29,6 @@ public class TableController : MonoBehaviour
     // || Cached
 
     private ScoreboardService service;
-
-    private GameObject parent;
-
-
 
     private void Awake()
     {
@@ -80,9 +77,11 @@ public class TableController : MonoBehaviour
             CreateTextColumn(row.transform, item.Score.ToString());
             CreateTextColumn(row.transform, item.Moment.ToString());
             CreateButtonColumn(row.transform, "Update", () => GotoRegisterUpdate(item.Id), new Color32(109, 255, 97, 255));
-            CreateButtonColumn(row.transform, "Delete", () => DeleteScore(item.Id), new Color32(255, 132, 97, 255));
+            CreateButtonColumn(row.transform, "Delete", () => StartCoroutine(DeleteScore(item.Id)), new Color32(255, 132, 97, 255));
             ranking++;
         }
+
+        messageText.text = (scoreboards.Count >= 1 ? string.Format(Configuration.Messages.ItemsFound, scoreboards.Count) : Configuration.Messages.NothingWasFound);
     }
 
     private GameObject CreateColumn(GameObject prefab, Transform rowParent, string value, Color32? color = null)
@@ -129,15 +128,20 @@ public class TableController : MonoBehaviour
         SceneManager.LoadScene(Configuration.Scenes.RegisterUpdate);
     }
 
-    private void DeleteScore(int id)
+    private IEnumerator DeleteScore(int id)
     {
-        if (id <= 0) return;
+        if (id <= 0) yield break;
 
         bool hasDeleted = service.DeleteById(id);
         messageText.text = (hasDeleted ? "Score deleted sucessfully" : "Error on delete Score!");
         if (hasDeleted)
         {
-            StartCoroutine(DrawTable());
+            tableCanvasGroup.alpha = 0.5f;
+            tableCanvasGroup.interactable = false;
+            yield return new WaitForSecondsRealtime(1f);
+            tableCanvasGroup.alpha = 1f;
+            tableCanvasGroup.interactable = true;
+            yield return StartCoroutine(DrawTable());
         }
     }
 }

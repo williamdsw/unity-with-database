@@ -24,7 +24,7 @@ namespace Service
 
         private bool Update(Scoreboard scoreboard)
         {
-            return scoreboardDAO.Insert(scoreboard);
+            return scoreboardDAO.Update(scoreboard);
         }
 
         public bool DeleteById(int id)

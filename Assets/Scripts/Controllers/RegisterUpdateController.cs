@@ -2,6 +2,7 @@
 using Others;
 using Service;
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -36,7 +37,7 @@ namespace Controller
             scoreboard = new Scoreboard();
             service = new ScoreboardService();
 
-            if (Transporter.Instance.IsUpdate)
+            if (Transporter.Instance != null && Transporter.Instance.IsUpdate)
             {
                 LoadScoreData(Transporter.Instance.ScoreboardId);
             }
@@ -94,20 +95,32 @@ namespace Controller
                 scoreboard.Score = decimal.Parse(scoreInput.text);
                 scoreboard.Moment = DateTime.Now;
 
-                string exceptionMessage = string.Empty;
+                bool success = false;
                 if (isUpdate)
                 {
-                    bool hasUpdated = service.Save(scoreboard);
-                    messageText.text = (hasUpdated ? "Score updated sucessfully!" : "Error on update the Score!");
+                    success = service.Save(scoreboard);
+                    messageText.text = (success ? "Score updated sucessfully!" : "Error on update the Score!");
                 }
                 else
                 {
-                    bool hasInserted = service.Save(scoreboard);
-                    messageText.text = (hasInserted ? "Score registered sucessfully!" : "Error on register the Score!");
+                    success = service.Save(scoreboard);
+                    messageText.text = (success ? "Score registered sucessfully!" : "Error on register the Score!");
+                }
+
+                if (success)
+                {
+                    okButton.interactable = clearButton.interactable = false;
+                    StartCoroutine(CountAndGetBack());
                 }
             }
         }
 
         private bool CheckIfTextIsNullOrEmpty(string text) => string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text);
+
+        private IEnumerator CountAndGetBack()
+        {
+            yield return new WaitForSecondsRealtime(3f);
+            BackToPreviousScene();
+        }
     }
 }
