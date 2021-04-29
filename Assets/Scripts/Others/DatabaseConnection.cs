@@ -1,38 +1,31 @@
-﻿using System;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 
-public class DatabaseConnection
+namespace Others
 {
-    // Config
-    private const string SERVER = "localhost";
-    private const string DATABASE = "unity_mysql";
-    private const string USER_ID = "root";
-    private const string PASSWORD = "";
-    private const int PORT = 3306;
-
-    // Cached
-    private MySqlConnection connection;
-
-    //----------------------------------------------------------------------------------//
-    // GETTERS / SETTERS
-
-    public MySqlConnection GetConnection () { return this.connection; }
-
-    //----------------------------------------------------------------------------------//
-
-    public DatabaseConnection ()
+    public class DatabaseConnection
     {
-        if (connection == null)
+        // Config
+        private const string SERVER = "localhost";
+        private const string DATABASE = "unity_mysql";
+        private const string USER_ID = "root";
+        private const string PASSWORD = "";
+        private const int PORT = 3306;
+
+        // || Properties
+
+        public static MySqlConnection Connection { get; private set; }
+
+        static DatabaseConnection()
         {
-            connection = new MySqlConnection (BuildConnectionString ());
+            if (Connection == null)
+            {
+                Connection = new MySqlConnection(BuildConnectionString());
+            }
         }
-    }
 
-    //----------------------------------------------------------------------------------//
-
-    private string BuildConnectionString ()
-    {
-        return $" SERVER = {SERVER}; DATABASE = {DATABASE}; PORT = {PORT}; " + 
-               $" USER ID = {USER_ID}; PASSWORD = {PASSWORD}; ";
+        private static string BuildConnectionString()
+        {
+            return string.Format(" SERVER = {0}; DATABASE = {1}; PORT = {2}; USER ID = {3}; PASSWORD = {4};", SERVER, DATABASE, PORT, USER_ID, PASSWORD);
+        }
     }
 }

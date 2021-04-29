@@ -1,5 +1,6 @@
 ﻿using Model;
 using Others;
+using Service;
 using System;
 using TMPro;
 using UnityEngine;
@@ -28,14 +29,14 @@ namespace Controller
         // || Cached References
 
         private Scoreboard scoreboard;
-        private ScoreboardDAO scoreboardDAO;
+        private ScoreboardService service;
 
         private void Awake()
         {
             scoreboard = new Scoreboard();
-            scoreboardDAO = new ScoreboardDAO();
+            service = new ScoreboardService();
 
-            if (Transporter.Instance != null)
+            if (Transporter.Instance.IsUpdate)
             {
                 LoadScoreData(Transporter.Instance.ScoreboardId);
             }
@@ -52,22 +53,16 @@ namespace Controller
             okButton.onClick.AddListener(() => Save(isUpdate));
         }
 
-        private void BackToPreviousScene()
-        {
-            SceneManager.LoadScene("TableScene");
-        }
+        private void BackToPreviousScene() => SceneManager.LoadScene(Configuration.Scenes.Table);
 
-        private void ClearFields()
-        {
-            userInput.text = scoreInput.text = string.Empty;
-        }
+        private void ClearFields() => userInput.text = scoreInput.text = string.Empty;
 
         private void LoadScoreData(int id)
         {
             if (id <= 0) return;
 
             // Loads data
-            scoreboard = scoreboardDAO.GetById(id);
+            scoreboard = service.GetById(id);
             userInput.text = scoreboard.User;
             scoreInput.text = scoreboard.Score.ToString();
             isUpdate = true;
@@ -102,20 +97,17 @@ namespace Controller
                 string exceptionMessage = string.Empty;
                 if (isUpdate)
                 {
-                    bool hasUpdated = scoreboardDAO.Update(scoreboard);
+                    bool hasUpdated = service.Save(scoreboard);
                     messageText.text = (hasUpdated ? "Score updated sucessfully!" : "Error on update the Score!");
                 }
                 else
                 {
-                    bool hasInserted = scoreboardDAO.Insert(scoreboard);
+                    bool hasInserted = service.Save(scoreboard);
                     messageText.text = (hasInserted ? "Score registered sucessfully!" : "Error on register the Score!");
                 }
             }
         }
 
-        private bool CheckIfTextIsNullOrEmpty(string text)
-        {
-            return string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text);
-        }
+        private bool CheckIfTextIsNullOrEmpty(string text) => string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text);
     }
 }

@@ -1,171 +1,143 @@
 ﻿using Model;
 using Others;
+using Service;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class TableScene : MonoBehaviour
+public class TableController : MonoBehaviour
 {
-    // Cached
+    // || Inspector References
+
+    [Header("Needed UI Elements")]
+    [SerializeField] private Transform tableContent;
+    [SerializeField] private GameObject rowPrefab;
+    [SerializeField] private GameObject textColumnPrefab;
+    [SerializeField] private GameObject textButtonColumnPrefab;
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private Button registerButton;
 
-    // State
+    // || State
+
     private Vector3 defaultPosition;
 
-    // Cached
+    // || Cached
+
+    private ScoreboardService service;
+
     private GameObject parent;
 
-    //-------------------------------------------------------------------------------//
-    
-    private void Start ()
+
+
+    private void Awake()
     {
-        defaultPosition = new Vector3 (- 1100, - 160, 0);
-        parent = GameObject.Find ("Content");
-        DrawTable ();
-        BindEvents ();
+        service = new ScoreboardService();
+        SetEventListeners();
     }
 
-    //-------------------------------------------------------------------------------//
-
-    private void BindEvents ()
+    private void Start()
     {
-        if (!registerButton) { return; }
-
-        registerButton.onClick.AddListener (delegate 
-        {
-            SceneManager.LoadScene ("CreateScene");
-        });
+        messageText.text = string.Empty;
+        StartCoroutine(DrawTable());
     }
 
-    private void CleanTable ()
+    private void SetEventListeners() => registerButton.onClick.AddListener(() => GotoRegisterUpdate(0));
+
+    private IEnumerator ClearTable()
     {
-        GameObject[] cells = GameObject.FindGameObjectsWithTag ("Cell");
-        foreach (GameObject cell in cells)
+        foreach (Transform item in tableContent)
         {
-            Destroy (cell);
+            Destroy(item.gameObject);
         }
 
-        defaultPosition = new Vector3 (- 1100, - 160, 0);
+        yield return new WaitUntil(() => tableContent.childCount == 0);
     }
 
-    private void DrawTable ()
+    private IEnumerator DrawTable()
     {
-        CleanTable ();
+        yield return StartCoroutine(ClearTable());
 
-        // Search
-        ScoreboardDAO scoreboardDAO = new ScoreboardDAO ();
-        List<Scoreboard> listModels = scoreboardDAO.ListAll ();
-
-        // Params
-        int rankingIndex = 1;
-        float currentPosY = - 160;
-        for (int index = 0; index < listModels.Count; index++)
+        List<Scoreboard> scoreboards = service.ListAll();
+        int ranking = 1;
+        foreach (Scoreboard item in scoreboards)
         {
-            Scoreboard model = listModels[index];
+            GameObject row = Instantiate(rowPrefab);
+            row.transform.SetParent(tableContent);
+            row.transform.SetAsLastSibling();
 
-            for (int j = 0; j < 1; j++)
+            RectTransform rectTransform = row.GetComponent<RectTransform>();
+            if (rectTransform != null)
             {
-                CreateTextElement ("Cell", rankingIndex.ToString (), defaultPosition);
-                CreateTextElement ("Cell", model.Id.ToString (), defaultPosition);
-                CreateTextElement ("Cell", model.User, defaultPosition);
-                CreateTextElement ("Cell", model.Score.ToString (), defaultPosition);
-                CreateTextElement ("Cell", model.Moment.ToString (), defaultPosition);
-                CreateButtonElement ("Cell", model.Id.ToString (), "Update", defaultPosition);
-                CreateButtonElement ("Cell", model.Id.ToString (), "Delete", defaultPosition);
-                currentPosY -= 100f;
-                defaultPosition = new Vector3 (- 1100, currentPosY, 0);
+                rectTransform.localScale = Vector3.one;
             }
 
-            rankingIndex++;
+            CreateTextColumn(row.transform, ranking.ToString());
+            CreateTextColumn(row.transform, item.User.ToString());
+            CreateTextColumn(row.transform, item.Score.ToString());
+            CreateTextColumn(row.transform, item.Moment.ToString());
+            CreateButtonColumn(row.transform, "Update", () => GotoRegisterUpdate(item.Id), new Color32(109, 255, 97, 255));
+            CreateButtonColumn(row.transform, "Delete", () => DeleteScore(item.Id), new Color32(255, 132, 97, 255));
+            ranking++;
         }
     }
 
-    private void CreateTextElement (string name, string value, Vector3 position)
+    private GameObject CreateColumn(GameObject prefab, Transform rowParent, string value, Color32? color = null)
     {
-        // New Position
-        position = new Vector3 (position.x + 250f, position.y, 0f);
-        defaultPosition = position;
+        GameObject column = Instantiate(prefab);
+        column.transform.SetParent(rowParent);
+        column.transform.SetAsLastSibling();
 
-        // Object and parent
-        GameObject cell = new GameObject (name);
-        cell.tag = "Cell";
-        cell.transform.SetParent (parent.transform);
-
-        // TextMesh properties
-        TextMeshProUGUI text = cell.AddComponent<TextMeshProUGUI>();
-        text.text = value;
-        text.alignment = TextAlignmentOptions.Center;
-
-        // RectTransform properties
-        RectTransform rectTransform = text.GetComponent<RectTransform>();
-        rectTransform.localScale = Vector3.one;
-        rectTransform.SetInsetAndSizeFromParentEdge (RectTransform.Edge.Top, 0, 50f);
-        rectTransform.anchoredPosition = position;
-    }
-
-    private void CreateButtonElement (string name, string value, string buttonText, Vector3 position)
-    {
-        // New Position
-        position = new Vector3 (position.x + 300f, position.y, 0f);
-        defaultPosition = position;
-
-        // Object and parent
-        GameObject cell = new GameObject (name);
-        cell.tag = "Cell";
-        cell.transform.SetParent (parent.transform);
-
-        // TextMesh properties
-        TextMeshProUGUI text = cell.AddComponent<TextMeshProUGUI>();
-        text.text = buttonText;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = Color.yellow;
-
-        // TextMesh properties
-        Button button = cell.AddComponent<Button>();
-        button.onClick.AddListener (delegate
+        TextMeshProUGUI textMeshPro = column.GetComponent<TextMeshProUGUI>();
+        if (textMeshPro != null)
         {
-            if (buttonText.Equals ("Update"))
+            textMeshPro.text = value;
+            if (color != null)
             {
-                GotoUpdateScene (int.Parse (value));
+                textMeshPro.color = color.Value;
             }
-            else if (buttonText.Equals ("Delete"))
-            {
-                DeleteScore (int.Parse (value));
-            }
-        });
+        }
 
-        // RectTransform properties
-        RectTransform rectTransform = text.GetComponent<RectTransform>();
-        rectTransform.localScale = Vector3.one;
-        rectTransform.SetInsetAndSizeFromParentEdge (RectTransform.Edge.Top, 0, 50f);
-        rectTransform.anchoredPosition = position;
+        RectTransform rectTransform = column.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.localScale = Vector3.one;
+        }
+
+        return column;
     }
 
-    private void GotoUpdateScene (int scoreID)
+    private void CreateTextColumn(Transform rowParent, string value) => CreateColumn(textColumnPrefab, rowParent, value);
+
+    private void CreateButtonColumn(Transform rowParent, string value, UnityAction callback, Color? color = null)
     {
-        Transporter.Instance.ScoreboardId = scoreID;
-        SceneManager.LoadScene ("UpdateScene");
+        GameObject column = CreateColumn(textButtonColumnPrefab, rowParent, value, color);
+        Button button = column.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.AddListener(callback);
+        }
     }
 
-    private void DeleteScore (int scoreID)
+    private void GotoRegisterUpdate(int id)
     {
-        // Cancels
-        if (scoreID <= 0) { return; }
+        Transporter.Instance.ScoreboardId = id;
+        Transporter.Instance.IsUpdate = (id >= 1);
+        SceneManager.LoadScene(Configuration.Scenes.RegisterUpdate);
+    }
 
-        ScoreboardDAO scoreboardDAO = new ScoreboardDAO ();
-        bool hasDeleted = scoreboardDAO.DeleteById (scoreID);
+    private void DeleteScore(int id)
+    {
+        if (id <= 0) return;
 
+        bool hasDeleted = service.DeleteById(id);
+        messageText.text = (hasDeleted ? "Score deleted sucessfully" : "Error on delete Score!");
         if (hasDeleted)
         {
-            messageText.text = "Score deleted sucessfully";
-            DrawTable ();
-        }
-        else 
-        {
-            messageText.text = "Error on delete Score!";
+            StartCoroutine(DrawTable());
         }
     }
 }
