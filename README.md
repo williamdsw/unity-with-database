@@ -15,6 +15,8 @@ Sample CRUD project of using Unity with MySQL.
 * Unity
 * C#
 * Adobe Photoshop CS6
+* MySQL
+* XAMPP
 
 ## Running the project locally
 
