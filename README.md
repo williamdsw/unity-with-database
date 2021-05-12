@@ -2,7 +2,7 @@
 
 ## About
 
-Sample CRUD project of using Unity with MySQL.
+Sample CRUD project of using Unity with SQLite 3.
 
 ## Screenshots
 
@@ -15,13 +15,10 @@ Sample CRUD project of using Unity with MySQL.
 * Unity
 * C#
 * Adobe Photoshop CS6
-* MySQL
-* XAMPP
+* SQLite 3
 
 ## Running the project locally
 
-* Download [XAMPP](https://www.apachefriends.org/pt_br/index.html) or [MySQL Community](https://www.mysql.com/downloads/).
-* Make sure you have installed `MySQL` and run the content placed in [commands.sql file](Files/commands.sql).
 * Download `.zip` file or `git clone` this repo.
 * Make sure that you have version `2020.3.1f1` of Unity or more recent one.
 * Open `Unity Hub` and import the project.
