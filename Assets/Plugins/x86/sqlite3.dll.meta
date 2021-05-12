@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b75a012a2eac86a47bc20626e3031627
+guid: dbbc95d07150a19469e2dd754d5eea03
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -12,23 +12,37 @@ PluginImporter:
   validateReferences: 1
   platformData:
   - first:
-      : OSXIntel
+      '': Any
     second:
       enabled: 0
+      settings:
+        Exclude Android: 1
+        Exclude Editor: 0
+        Exclude Linux: 0
+        Exclude Linux64: 0
+        Exclude LinuxUniversal: 0
+        Exclude OSXUniversal: 0
+        Exclude Win: 0
+        Exclude Win64: 0
+        Exclude iOS: 1
+  - first:
+      '': OSXIntel
+    second:
+      enabled: 1
       settings:
         CPU: AnyCPU
   - first:
-      : OSXIntel64
+      '': OSXIntel64
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Android: Android
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: ARMv7
   - first:
       Any: 
     second:
@@ -37,15 +51,15 @@ PluginImporter:
   - first:
       Editor: Editor
     second:
-      enabled: 0
+      enabled: 1
       settings:
-        CPU: AnyCPU
+        CPU: x86
         DefaultValueInitialized: true
         OS: AnyOS
   - first:
       Facebook: Win
     second:
-      enabled: 0
+      enabled: 1
       settings:
         CPU: AnyCPU
   - first:
@@ -53,42 +67,49 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Standalone: Linux
     second:
-      enabled: 0
+      enabled: 1
       settings:
         CPU: x86
   - first:
       Standalone: Linux64
     second:
-      enabled: 0
+      enabled: 1
       settings:
-        CPU: AnyCPU
+        CPU: None
+  - first:
+      Standalone: LinuxUniversal
+    second:
+      enabled: 1
+      settings:
+        CPU: x86
+  - first:
+      Standalone: OSXUniversal
+    second:
+      enabled: 1
+      settings:
+        CPU: x86
   - first:
       Standalone: Win
     second:
-      enabled: 0
+      enabled: 1
       settings:
         CPU: AnyCPU
   - first:
       Standalone: Win64
     second:
-      enabled: 0
+      enabled: 1
       settings:
-        CPU: AnyCPU
-  - first:
-      Windows Store Apps: WindowsStoreApps
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       iPhone: iOS
     second:
       enabled: 0
       settings:
+        AddToEmbeddedBinaries: false
         CompileFlags: 
         FrameworkDependencies: 
   userData: 

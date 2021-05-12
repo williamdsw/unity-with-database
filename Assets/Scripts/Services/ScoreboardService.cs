@@ -1,8 +1,6 @@
 using DAO;
 using Model;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Service
 {
@@ -12,34 +10,16 @@ namespace Service
 
         private ScoreboardDAO scoreboardDAO = new ScoreboardDAO();
 
-        public bool Save(Scoreboard scoreboard)
-        {
-            return (scoreboard.Id <= 0 ? Insert(scoreboard) : Update(scoreboard));
-        }
+        public bool Save(Scoreboard scoreboard) => (scoreboard.Id <= 0 ? Insert(scoreboard) : Update(scoreboard));
 
-        private bool Insert(Scoreboard scoreboard)
-        {
-            return scoreboardDAO.Insert(scoreboard);
-        }
+        private bool Insert(Scoreboard scoreboard) => scoreboardDAO.Insert(scoreboard);
 
-        private bool Update(Scoreboard scoreboard)
-        {
-            return scoreboardDAO.Update(scoreboard);
-        }
+        private bool Update(Scoreboard scoreboard) => scoreboardDAO.Update(scoreboard);
 
-        public bool DeleteById(int id)
-        {
-            return scoreboardDAO.DeleteById(id);
-        }
+        public bool DeleteById(long id) => scoreboardDAO.DeleteById(id);
 
-        public List<Scoreboard> ListAll()
-        {
-            return scoreboardDAO.ListAll();
-        }
+        public List<Scoreboard> ListAll() => scoreboardDAO.ListAll();
 
-        public Scoreboard GetById(int id)
-        {
-            return scoreboardDAO.GetById(id);
-        }
+        public Scoreboard GetById(long id) => scoreboardDAO.GetById(id);
     }
 }

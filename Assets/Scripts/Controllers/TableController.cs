@@ -1,8 +1,10 @@
 ﻿using Model;
 using Others;
 using Service;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -31,8 +33,13 @@ public class TableController : MonoBehaviour
 
     private ScoreboardService service;
 
+    // || Properties
+
+    public static TableController Instance { get; private set; }
+
     private void Awake()
     {
+        Instance = this;
         service = new ScoreboardService();
         SetEventListeners();
     }
@@ -40,7 +47,6 @@ public class TableController : MonoBehaviour
     private void Start()
     {
         messageText.text = string.Empty;
-        StartCoroutine(DrawTable());
     }
 
     private void SetEventListeners()
@@ -59,7 +65,7 @@ public class TableController : MonoBehaviour
         yield return new WaitUntil(() => tableContent.childCount == 0);
     }
 
-    private IEnumerator DrawTable()
+    public IEnumerator DrawTable()
     {
         yield return StartCoroutine(ClearTable());
 
@@ -79,8 +85,8 @@ public class TableController : MonoBehaviour
 
             CreateTextColumn(row.transform, ranking.ToString());
             CreateTextColumn(row.transform, item.User.ToString());
-            CreateTextColumn(row.transform, item.Score.ToString());
-            CreateTextColumn(row.transform, item.Moment.ToString());
+            CreateTextColumn(row.transform, item.Score.ToString("F2"));
+            CreateTextColumn(row.transform, DateTimeOffset.FromUnixTimeSeconds((long) item.Moment).ToString("yyyy-MM-dd HH:mm:ss"));
             CreateButtonColumn(row.transform, "Update", () => GotoRegisterUpdate(item.Id), new Color32(109, 255, 97, 255));
             CreateButtonColumn(row.transform, "Delete", () => StartCoroutine(DeleteScore(item.Id)), new Color32(255, 132, 97, 255));
             ranking++;
@@ -126,14 +132,14 @@ public class TableController : MonoBehaviour
         }
     }
 
-    private void GotoRegisterUpdate(int id)
+    private void GotoRegisterUpdate(long id)
     {
         Transporter.Instance.ScoreboardId = id;
         Transporter.Instance.IsUpdate = (id >= 1);
         SceneManager.LoadScene(Configuration.Scenes.RegisterUpdate);
     }
 
-    private IEnumerator DeleteScore(int id)
+    private IEnumerator DeleteScore(long id)
     {
         if (id <= 0) yield break;
 

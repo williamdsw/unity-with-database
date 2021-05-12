@@ -3,6 +3,7 @@ using Others;
 using Service;
 using System;
 using System.Collections;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -58,7 +59,7 @@ namespace Controller
 
         private void ClearFields() => userInput.text = scoreInput.text = string.Empty;
 
-        private void LoadScoreData(int id)
+        private void LoadScoreData(long id)
         {
             if (id <= 0) return;
 
@@ -71,47 +72,55 @@ namespace Controller
 
         private void Save(bool isUpdate)
         {
-            // Checks ID
-            if (isUpdate && scoreboard.Id <= 0)
+            try
             {
-                messageText.text = "Invalid Scoreboard Id!";
-                return;
-            }
-
-            if (CheckIfTextIsNullOrEmpty(userInput.text))
-            {
-                messageText.text = "Please, inform the Username!";
-            }
-            else if (CheckIfTextIsNullOrEmpty(scoreInput.text))
-            {
-                messageText.text = "Please, inform the Score!";
-            }
-            else
-            {
-                messageText.text = string.Empty;
-
-                // Fills model
-                scoreboard.User = userInput.text;
-                scoreboard.Score = decimal.Parse(scoreInput.text);
-                scoreboard.Moment = DateTime.Now;
-
-                bool success = false;
-                if (isUpdate)
+                // Checks ID
+                if (isUpdate && scoreboard.Id <= 0)
                 {
-                    success = service.Save(scoreboard);
-                    messageText.text = (success ? "Score updated sucessfully!" : "Error on update the Score!");
+                    messageText.text = "Invalid Scoreboard Id!";
+                    return;
+                }
+
+                if (CheckIfTextIsNullOrEmpty(userInput.text))
+                {
+                    messageText.text = "Please, inform the Username!";
+                }
+                else if (CheckIfTextIsNullOrEmpty(scoreInput.text))
+                {
+                    messageText.text = "Please, inform the Score!";
                 }
                 else
                 {
-                    success = service.Save(scoreboard);
-                    messageText.text = (success ? "Score registered sucessfully!" : "Error on register the Score!");
-                }
+                    messageText.text = string.Empty;
 
-                if (success)
-                {
-                    okButton.interactable = clearButton.interactable = false;
-                    StartCoroutine(CountAndGetBack());
+                    // Fills model
+                    scoreboard.User = userInput.text;
+                    scoreboard.Score = decimal.Parse(scoreInput.text);
+                    scoreboard.Moment = DateTimeOffset.Now.ToUnixTimeSeconds();
+
+                    bool success = false;
+                    if (isUpdate)
+                    {
+                        success = service.Save(scoreboard);
+                        messageText.text = (success ? "Score updated sucessfully!" : "Error on update the Score!");
+                    }
+                    else
+                    {
+                        success = service.Save(scoreboard);
+                        messageText.text = (success ? "Score registered sucessfully!" : "Error on register the Score!");
+                    }
+
+                    if (success)
+                    {
+                        okButton.interactable = clearButton.interactable = false;
+                        StartCoroutine(CountAndGetBack());
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogErrorFormat("Save -> {0}", ex.Message);
+                throw ex;
             }
         }
 

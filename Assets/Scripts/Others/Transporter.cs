@@ -6,7 +6,7 @@ namespace Others
     {
         // Properties
 
-        public int ScoreboardId { get; set; }
+        public long ScoreboardId { get; set; }
         public bool IsUpdate { get; set; } = false;
         public static Transporter Instance { get; private set; }
 

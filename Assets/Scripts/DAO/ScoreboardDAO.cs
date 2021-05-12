@@ -1,5 +1,5 @@
-﻿using Model;
-using MySql.Data.MySqlClient;
+﻿using DAO.Utils;
+using Model;
 using Others;
 using System;
 using System.Collections.Generic;
@@ -7,8 +7,11 @@ using UnityEngine;
 
 namespace DAO
 {
-    public class ScoreboardDAO
+    public class ScoreboardDAO : Connection
     {
+        public ScoreboardDAO() : base() { }
+
+
         /// <summary>
         /// Insert scoreboard data
         /// </summary>
@@ -16,23 +19,17 @@ namespace DAO
         {
             try
             {
-                using (MySqlConnection connection = DatabaseConnection.Connection)
-                {
-                    connection.Open();
-
-                    // Parameters
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.Insert, connection);
-                    command.Parameters.AddWithValue("@USER", model.User);
-                    command.Parameters.AddWithValue("@SCORE", model.Score);
-                    command.Parameters.AddWithValue("@MOMENT", model.Moment);
-
-                    return (command.ExecuteNonQuery() == 1);
-                }
+                string query = string.Format(Configuration.Queries.Scoreboard.Insert, model.User, model.Score.ToString().Replace(",", "."), model.Moment);
+                return (ExecuteNonQuery(query) == 1);
             }
             catch (Exception ex)
             {
                 Debug.LogErrorFormat("Insert -> {0}", ex.Message);
-                return false;
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
@@ -43,50 +40,39 @@ namespace DAO
         {
             try
             {
-                using (MySqlConnection connection = DatabaseConnection.Connection)
-                {
-                    connection.Open();
-
-                    // Parameters
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.Update, connection);
-                    command.Parameters.AddWithValue("@USER", model.User);
-                    command.Parameters.AddWithValue("@SCORE", model.Score);
-                    command.Parameters.AddWithValue("@MOMENT", model.Moment);
-                    command.Parameters.AddWithValue("@ID", model.Id);
-
-                    return (command.ExecuteNonQuery() == 1);
-                }
+                string query = string.Format(Configuration.Queries.Scoreboard.Update, model.User, model.Score.ToString().Replace(",", "."), model.Moment, model.Id);
+                return (ExecuteNonQuery(query) == 1);
             }
             catch (Exception ex)
             {
                 Debug.LogErrorFormat("Update -> {0}", ex.Message);
-                return false;
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
         /// <summary>
         /// Delete scoreboard data
         /// </summary>
-        public bool DeleteById(int id)
+        public bool DeleteById(long id)
         {
             try
             {
-                if (id <= 0) throw new Exception(string.Format("Invalid Id -> {0}", id));
-
-                using (MySqlConnection connection = DatabaseConnection.Connection)
-                {
-                    connection.Open();
-
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.Delete, connection);
-                    command.Parameters.AddWithValue("@ID", id);
-
-                    return (command.ExecuteNonQuery() == 1);
-                }
+                GetById(id);
+                ExecuteQuery(string.Format(Configuration.Queries.Scoreboard.Delete, id));
+                return GetById(id) == null;
             }
             catch (Exception ex)
             {
                 Debug.LogErrorFormat("DeleteById -> {0}", ex.Message);
-                return false;
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
@@ -97,73 +83,38 @@ namespace DAO
         {
             try
             {
-                using (MySqlConnection connection = DatabaseConnection.Connection)
-                {
-                    connection.Open();
-
-                    // Read data
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.ListAll, connection);
-                    using (MySqlDataReader reader = command.ExecuteReader())
-                    {
-                        List<Scoreboard> models = new List<Scoreboard>();
-                        while (reader.Read())
-                        {
-                            Scoreboard model = new Scoreboard();
-                            model.Id = reader.GetInt16("ID");
-                            model.User = reader.GetString("USER");
-                            model.Score = reader.GetDecimal("SCORE");
-                            model.Moment = reader.GetDateTime("MOMENT");
-                            models.Add(model);
-                        }
-
-                        return models;
-                    }
-                }
+                return Factory<Scoreboard>.CreateMany(ExecuteQuery(Configuration.Queries.Scoreboard.ListAll));
             }
             catch (Exception ex)
             {
                 Debug.LogErrorFormat("ListAll -> {0}", ex.Message);
-                return new List<Scoreboard>();
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
         /// <summary>
         /// Recover scoreboard data by ID
         /// </summary>
-        public Scoreboard GetById(int id)
+        public Scoreboard GetById(long id)
         {
             try
             {
                 if (id <= 0) throw new Exception(string.Format("Invalid Id -> {0}", id));
-
-                using (MySqlConnection connection = DatabaseConnection.Connection)
-                {
-                    connection.Open();
-
-                    // Params
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.GetById, connection);
-                    command.Parameters.AddWithValue("@ID", id);
-
-                    // Read data
-                    using (MySqlDataReader reader = command.ExecuteReader())
-                    {
-                        Scoreboard model = new Scoreboard();
-                        if (reader.Read())
-                        {
-                            model.Id = reader.GetInt16("ID");
-                            model.User = reader.GetString("USER");
-                            model.Score = reader.GetDecimal("SCORE");
-                            model.Moment = reader.GetDateTime("MOMENT");
-                        }
-
-                        return model;
-                    }
-                }
+                string query = string.Format(Configuration.Queries.Scoreboard.GetById, id);
+                return Factory<Scoreboard>.CreateOne(ExecuteQuery(query));
             }
             catch (Exception ex)
             {
                 Debug.LogErrorFormat("GetById -> {0}", ex.Message);
-                return null;
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
     }
