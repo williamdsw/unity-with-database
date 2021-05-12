@@ -61,9 +61,7 @@ namespace DAO
         {
             try
             {
-                GetById(id);
-                ExecuteQuery(string.Format(Configuration.Queries.Scoreboard.Delete, id));
-                return GetById(id) == null;
+                return ExecuteNonQuery(string.Format(Configuration.Queries.Scoreboard.Delete, id)) == 1;
             }
             catch (Exception ex)
             {
