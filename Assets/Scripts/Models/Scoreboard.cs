@@ -2,6 +2,9 @@
 
 namespace Model
 {
+    /// <summary>
+    /// User scoreboard
+    /// </summary>
     public class Scoreboard
     {
         private int id;

@@ -8,7 +8,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace Controller
+/// <summary>
+/// Controller for Register | Update Scene
+/// </summary>
+namespace Controllers
 {
     public class RegisterUpdateController : MonoBehaviour
     {
@@ -32,6 +35,9 @@ namespace Controller
         private Scoreboard scoreboard;
         private ScoreboardService service;
 
+        /// <summary>
+        /// Unity Awake Event
+        /// </summary>
         private void Awake()
         {
             scoreboard = new Scoreboard();
@@ -44,50 +50,83 @@ namespace Controller
 
             headerText.text = (isUpdate ? "Update Score" : "Register New Score");
 
-            BindEvents();
+            SetEventListeners();
         }
 
-        private void BindEvents()
+        /// <summary>
+        /// Set event listeners for buttons
+        /// </summary>
+        private void SetEventListeners()
         {
-            closeButton.onClick.AddListener(BackToPreviousScene);
-            clearButton.onClick.AddListener(ClearFields);
-            okButton.onClick.AddListener(() => Save(isUpdate));
+            try
+            {
+                closeButton.onClick.AddListener(BackToPreviousScene);
+                clearButton.onClick.AddListener(ClearFields);
+                okButton.onClick.AddListener(() => Save(isUpdate));
+            }
+            catch (Exception ex)
+            {
+                messageText.text = ex.Message;
+            }
         }
 
+        /// <summary>
+        /// Load table scene
+        /// </summary>
         private void BackToPreviousScene() => SceneManager.LoadScene(Configuration.Scenes.Table);
 
+        /// <summary>
+        /// Clear inputs fields
+        /// </summary>
         private void ClearFields() => userInput.text = scoreInput.text = string.Empty;
 
+        /// <summary>
+        /// Load score data by Id
+        /// </summary>
+        /// <param name="id"> Score Id </param>
         private void LoadScoreData(int id)
         {
-            if (id <= 0) return;
+            try
+            {
+                if (id <= 0) return;
 
-            // Loads data
-            scoreboard = service.GetById(id);
-            userInput.text = scoreboard.User;
-            scoreInput.text = scoreboard.Score.ToString();
-            isUpdate = true;
+                scoreboard = service.GetById(id);
+                userInput.text = scoreboard.User;
+                scoreInput.text = scoreboard.Score.ToString();
+                isUpdate = true;
+            }
+            catch (Exception ex)
+            {
+                messageText.text = ex.Message;
+            }
         }
 
+        /// <summary>
+        /// Save record data
+        /// </summary>
+        /// <param name="isUpdate"> Is update or insert </param>
         private void Save(bool isUpdate)
         {
-            // Checks ID
-            if (isUpdate && scoreboard.Id <= 0)
+            try
             {
-                messageText.text = "Invalid Scoreboard Id!";
-                return;
-            }
+                if (isUpdate && scoreboard.Id <= 0)
+                {
+                    messageText.text = "Invalid Scoreboard Id!";
+                    return;
+                }
 
-            if (CheckIfTextIsNullOrEmpty(userInput.text))
-            {
-                messageText.text = "Please, inform the Username!";
-            }
-            else if (CheckIfTextIsNullOrEmpty(scoreInput.text))
-            {
-                messageText.text = "Please, inform the Score!";
-            }
-            else
-            {
+                if (CheckIfTextIsNullOrEmpty(userInput.text))
+                {
+                    messageText.text = "Please, inform the Username!";
+                    return;
+                }
+
+                if (CheckIfTextIsNullOrEmpty(scoreInput.text))
+                {
+                    messageText.text = "Please, inform the Score!";
+                    return;
+                }
+
                 messageText.text = string.Empty;
 
                 // Fills model
@@ -113,10 +152,21 @@ namespace Controller
                     StartCoroutine(CountAndGetBack());
                 }
             }
+            catch (Exception ex)
+            {
+                messageText.text = ex.Message;
+            }
         }
 
+        /// <summary>
+        /// Check if given text is null or empty
+        /// </summary>
+        /// <param name="text"> Text </param>
         private bool CheckIfTextIsNullOrEmpty(string text) => string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text);
 
+        /// <summary>
+        /// Counts 3 seconds and get back to previous scene
+        /// </summary>
         private IEnumerator CountAndGetBack()
         {
             yield return new WaitForSecondsRealtime(3f);

@@ -1,169 +1,144 @@
-﻿using Model;
-using MySql.Data.MySqlClient;
+﻿using DAO.Utils;
+using Model;
 using Others;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace DAO
 {
-    public class ScoreboardDAO
+    /// <summary>
+    /// DAO for Scoreboard
+    /// </summary>
+    public class ScoreboardDAO : DatabaseConnection
     {
         /// <summary>
         /// Insert scoreboard data
         /// </summary>
+        /// <param name="model"> Model with data </param>
+        /// <returns> Scoreboard was inserted ? </returns>
         public bool Insert(Scoreboard model)
         {
             try
             {
-                using (MySqlConnection connection = DatabaseConnection.Connection)
+                Dictionary<string, object> keyValuePairs = new Dictionary<string, object>()
                 {
-                    connection.Open();
+                    { "@USER", model.User },
+                    { "@SCORE", model.Score },
+                    { "@MOMENT", model.Moment },
+                };
 
-                    // Parameters
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.Insert, connection);
-                    command.Parameters.AddWithValue("@USER", model.User);
-                    command.Parameters.AddWithValue("@SCORE", model.Score);
-                    command.Parameters.AddWithValue("@MOMENT", model.Moment);
-
-                    return (command.ExecuteNonQuery() == 1);
-                }
+                return ExecuteNonQuery(Configuration.Queries.Scoreboard.Insert, keyValuePairs) == 1;
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("Insert -> {0}", ex.Message);
-                return false;
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
         /// <summary>
         /// Update scoreboard data
         /// </summary>
+        /// <param name="model"> Model with data </param>
+        /// <returns> Scoreboard was updated ? </returns>
         public bool Update(Scoreboard model)
         {
             try
             {
-                using (MySqlConnection connection = DatabaseConnection.Connection)
+                Dictionary<string, object> keyValuePairs = new Dictionary<string, object>()
                 {
-                    connection.Open();
+                    { "@USER", model.User },
+                    { "@SCORE", model.Score },
+                    { "@MOMENT", model.Moment },
+                    { "@ID", model.Id },
+                };
 
-                    // Parameters
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.Update, connection);
-                    command.Parameters.AddWithValue("@USER", model.User);
-                    command.Parameters.AddWithValue("@SCORE", model.Score);
-                    command.Parameters.AddWithValue("@MOMENT", model.Moment);
-                    command.Parameters.AddWithValue("@ID", model.Id);
-
-                    return (command.ExecuteNonQuery() == 1);
-                }
+                return ExecuteNonQuery(Configuration.Queries.Scoreboard.Update, keyValuePairs) == 1;
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("Update -> {0}", ex.Message);
-                return false;
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
         /// <summary>
         /// Delete scoreboard data
         /// </summary>
-        public bool DeleteById(int id)
+        /// <param name="id"> Scoreboard id </param>
+        /// <returns> Scoreboard was deleted ? </returns>
+        public bool DeleteById(long id)
         {
             try
             {
-                if (id <= 0) throw new Exception(string.Format("Invalid Id -> {0}", id));
-
-                using (MySqlConnection connection = DatabaseConnection.Connection)
+                Dictionary<string, object> keyValuePairs = new Dictionary<string, object>()
                 {
-                    connection.Open();
+                    { "@ID", id },
+                };
 
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.Delete, connection);
-                    command.Parameters.AddWithValue("@ID", id);
-
-                    return (command.ExecuteNonQuery() == 1);
-                }
+                return ExecuteNonQuery(Configuration.Queries.Scoreboard.Delete, keyValuePairs) == 1;
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("DeleteById -> {0}", ex.Message);
-                return false;
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
         /// <summary>
         /// List all scoreboard data
         /// </summary>
+        /// <returns> All scoreboard data </returns>
         public List<Scoreboard> ListAll()
         {
             try
             {
-                using (MySqlConnection connection = DatabaseConnection.Connection)
-                {
-                    connection.Open();
-
-                    // Read data
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.ListAll, connection);
-                    using (MySqlDataReader reader = command.ExecuteReader())
-                    {
-                        List<Scoreboard> models = new List<Scoreboard>();
-                        while (reader.Read())
-                        {
-                            Scoreboard model = new Scoreboard();
-                            model.Id = reader.GetInt16("ID");
-                            model.User = reader.GetString("USER");
-                            model.Score = reader.GetDecimal("SCORE");
-                            model.Moment = reader.GetDateTime("MOMENT");
-                            models.Add(model);
-                        }
-
-                        return models;
-                    }
-                }
+                return Factory<Scoreboard>.CreateMany(ExecuteQuery(Configuration.Queries.Scoreboard.ListAll));
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("ListAll -> {0}", ex.Message);
-                return new List<Scoreboard>();
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
         /// <summary>
         /// Recover scoreboard data by ID
         /// </summary>
-        public Scoreboard GetById(int id)
+        /// <param name="id"> Scoreboard Id </param>
+        /// <returns> Scoreboard data </returns>
+        public Scoreboard GetById(long id)
         {
             try
             {
                 if (id <= 0) throw new Exception(string.Format("Invalid Id -> {0}", id));
 
-                using (MySqlConnection connection = DatabaseConnection.Connection)
+                Dictionary<string, object> keyValuePairs = new Dictionary<string, object>()
                 {
-                    connection.Open();
+                    { "@ID", id },
+                };
 
-                    // Params
-                    MySqlCommand command = new MySqlCommand(Configuration.Queries.Scoreboard.GetById, connection);
-                    command.Parameters.AddWithValue("@ID", id);
-
-                    // Read data
-                    using (MySqlDataReader reader = command.ExecuteReader())
-                    {
-                        Scoreboard model = new Scoreboard();
-                        if (reader.Read())
-                        {
-                            model.Id = reader.GetInt16("ID");
-                            model.User = reader.GetString("USER");
-                            model.Score = reader.GetDecimal("SCORE");
-                            model.Moment = reader.GetDateTime("MOMENT");
-                        }
-
-                        return model;
-                    }
-                }
+                return Factory<Scoreboard>.CreateOne(ExecuteQuery(Configuration.Queries.Scoreboard.GetById, keyValuePairs));
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("GetById -> {0}", ex.Message);
-                return null;
+                throw ex;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
     }
