@@ -1,10 +1,13 @@
 ﻿using Mono.Data.Sqlite;
 using Others;
+using System;
 using System.Data;
-using UnityEngine;
 
 namespace DAO
 {
+    /// <summary>
+    /// Connection class for SQLite
+    /// </summary>
     public class Connection
     {
         private IDbConnection connection;
@@ -14,10 +17,22 @@ namespace DAO
 
         public Connection()
         {
-            string path = string.Format("URI=file:{0}", Configuration.Properties.DatabasePath);
-            connection = new SqliteConnection(path);
+            try
+            {
+                string path = string.Format("URI=file:{0}", Configuration.Properties.DatabasePath);
+                connection = new SqliteConnection(path);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
+        /// <summary>
+        /// Execute given query (SELECT etc)
+        /// </summary>
+        /// <param name="query"> Query to be executed </param>
+        /// <returns> Reader with data </returns>
         protected IDataReader ExecuteQuery(string query)
         {
             connection.Open();
@@ -27,6 +42,11 @@ namespace DAO
             return reader;
         }
 
+        /// <summary>
+        /// Execute given query (INSERT, UPDATE, DELETE)
+        /// </summary>
+        /// <param name="query"> Query to be executed </param>
+        /// <returns> How many rows are affected </returns>
         protected long ExecuteScalar(string query)
         {
             connection.Open();
@@ -35,6 +55,11 @@ namespace DAO
             return (long)command.ExecuteScalar();
         }
 
+        /// <summary>
+        /// Execute given query (INSERT, UPDATE, DELETE)
+        /// </summary>
+        /// <param name="query"> Query to be executed </param>
+        /// <returns> How many rows are affected </returns>
         protected int ExecuteNonQuery(string query)
         {
             connection.Open();
@@ -43,6 +68,9 @@ namespace DAO
             return command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Close connection with SQLite
+        /// </summary>
         protected void CloseConnection()
         {
             if (reader != null)
@@ -50,8 +78,15 @@ namespace DAO
                 reader.Close();
             }
 
-            command.Dispose();
-            connection.Close();
+            if (command != null)
+            {
+                command.Dispose();
+            }
+
+            if (connection != null)
+            {
+                connection.Close();
+            }
         }
     }
 }

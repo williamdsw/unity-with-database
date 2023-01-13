@@ -7,14 +7,18 @@ using UnityEngine;
 
 namespace DAO
 {
+    /// <summary>
+    /// DAO for Scoreboard
+    /// </summary>
     public class ScoreboardDAO : Connection
     {
         public ScoreboardDAO() : base() { }
 
-
         /// <summary>
         /// Insert scoreboard data
         /// </summary>
+        /// <param name="model"> Model with data </param>
+        /// <returns> Scoreboard was inserted ? </returns>
         public bool Insert(Scoreboard model)
         {
             try
@@ -24,7 +28,6 @@ namespace DAO
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("Insert -> {0}", ex.Message);
                 throw ex;
             }
             finally
@@ -36,6 +39,8 @@ namespace DAO
         /// <summary>
         /// Update scoreboard data
         /// </summary>
+        /// <param name="model"> Model with data </param>
+        /// <returns> Scoreboard was updated ? </returns>
         public bool Update(Scoreboard model)
         {
             try
@@ -45,7 +50,6 @@ namespace DAO
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("Update -> {0}", ex.Message);
                 throw ex;
             }
             finally
@@ -57,6 +61,8 @@ namespace DAO
         /// <summary>
         /// Delete scoreboard data
         /// </summary>
+        /// <param name="id"> Scoreboard id </param>
+        /// <returns> Scoreboard was deleted ? </returns>
         public bool DeleteById(long id)
         {
             try
@@ -65,7 +71,6 @@ namespace DAO
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("DeleteById -> {0}", ex.Message);
                 throw ex;
             }
             finally
@@ -77,6 +82,7 @@ namespace DAO
         /// <summary>
         /// List all scoreboard data
         /// </summary>
+        /// <returns> All scoreboard data </returns>
         public List<Scoreboard> ListAll()
         {
             try
@@ -85,7 +91,6 @@ namespace DAO
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("ListAll -> {0}", ex.Message);
                 throw ex;
             }
             finally
@@ -97,6 +102,8 @@ namespace DAO
         /// <summary>
         /// Recover scoreboard data by ID
         /// </summary>
+        /// <param name="id"> Scoreboard Id </param>
+        /// <returns> Scoreboard data </returns>
         public Scoreboard GetById(long id)
         {
             try
@@ -107,7 +114,6 @@ namespace DAO
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("GetById -> {0}", ex.Message);
                 throw ex;
             }
             finally

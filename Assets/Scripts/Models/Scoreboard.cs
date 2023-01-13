@@ -1,7 +1,9 @@
-﻿using System;
-
+﻿
 namespace Model
 {
+    /// <summary>
+    /// User scoreboard
+    /// </summary>
     public class Scoreboard
     {
         public long Id { get; set; }

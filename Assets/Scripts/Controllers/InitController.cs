@@ -6,45 +6,51 @@ using Others;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class InitController : MonoBehaviour
+namespace Controllers
 {
-    private bool isDatabaseOk = false;
-
-    private void Awake()
+    /// <summary>
+    /// Controller for Initialization
+    /// </summary>
+    public class InitController : MonoBehaviour
     {
-        StartCoroutine(ExtractDatabase());
-    }
-
-    private IEnumerator Start()
-    {
-        yield return new WaitUntil(() => isDatabaseOk);
-        StartCoroutine(TableController.Instance.DrawTable());
-    }
-
-    private IEnumerator ExtractDatabase()
-    {
-        if (!File.Exists(Configuration.Properties.DatabasePath))
+        /// <summary>
+        /// Unity Start Event
+        /// </summary>
+        private IEnumerator Start()
         {
-#if UNITY_EDITOR || UNITY_STANDALONE
-            File.Copy(Configuration.Properties.DatabaseStreamingAssetsPath, Configuration.Properties.DatabasePath);
-#elif UNITY_ANDROID || UNITY_IOS
-            yield return StartCoroutine(CopyDatabase());
-#endif
+            yield return ExtractDatabase();
+            yield return TableController.Instance.DrawTable();
         }
 
-        isDatabaseOk = true;
-        yield return null;
-    }
-
-    // || Mobile - Android | iOS Only
-    private IEnumerator CopyDatabase()
-    {
-        using (UnityWebRequest request = UnityWebRequest.Get(Configuration.Properties.MobileDatabasePath))
+        /// <summary>
+        /// Extract database to AppData folder
+        /// </summary>
+        private IEnumerator ExtractDatabase()
         {
-            yield return request.SendWebRequest();
-            if (string.IsNullOrEmpty(request.error))
+            if (!File.Exists(Configuration.Properties.DatabasePath))
             {
-                File.WriteAllBytes(Configuration.Properties.DatabasePath, request.downloadHandler.data);
+#if UNITY_EDITOR || UNITY_STANDALONE
+                File.Copy(Configuration.Properties.DatabaseStreamingAssetsPath, Configuration.Properties.DatabasePath);
+#elif UNITY_ANDROID || UNITY_IOS
+                yield return CopyDatabase();
+#endif
+            }
+
+            yield return new WaitUntil(() => File.Exists(Configuration.Properties.DatabasePath));
+        }
+
+        /// <summary>
+        /// Copy database file to AppData folder (Mobile - Android | iOS Only)
+        /// </summary>
+        private IEnumerator CopyDatabase()
+        {
+            using (UnityWebRequest request = UnityWebRequest.Get(Configuration.Properties.MobileDatabasePath))
+            {
+                yield return request.SendWebRequest();
+                if (string.IsNullOrEmpty(request.error))
+                {
+                    File.WriteAllBytes(Configuration.Properties.DatabasePath, request.downloadHandler.data);
+                }
             }
         }
     }
